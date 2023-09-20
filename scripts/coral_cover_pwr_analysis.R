@@ -10,62 +10,8 @@ setwd("C:/Users/harperl/OneDrive - Smithsonian Institution/Documents/Coral Disea
 
 
 # Import the survey data
-cover1 <- read.csv("annotations_CBC_pwr.csv")
-cover2 <- read.csv("annotations_CCMI_pwr.csv")
+cover <- read.csv("coral_cover_pwr.csv")
 
-cover2$SiteName <- recode(cover2$SiteName, "Snap Shot" = "Snapshot",
-                          "Sailfin Reef" = "Sailfin")
-
-cover <- rbind(cover1,cover2)
-  
-split <- strsplit(cover$Date, "/")
-split2 <- matrix(unlist(split), ncol=3, byrow=TRUE)
-split2 <- as.data.frame(split2)
-cover <- cbind(cover, split2)
-
-cover <- cover %>% rename("Year" = "V3") %>%
-  select(Location, Name, Date, SiteName, Habitat, Depth, Year, Annotator, Label, Row, Column)
-
-cover$Label <- as.factor(cover$Label)
-levels(cover$Label)
-
-cover$Label <- recode(cover$Label, "CNAt" = "CNAT",
-                       "SMIC" = "SINT")
-
-
-cover <- cover %>% mutate('Label_General' = 'x')
-cover <- within(cover, Label_General[Label == "THAL"] <- "Thalassia")
-cover <- within(cover, Label_General[Label == "AAGA"|Label == "APAL"|Label == "ATEN"|
-                                       Label == "Coral"|Label == "MALC"|Label == "MCAV"|
-                                       Label == "MCOM"|Label == "OANN"|Label == "OFAV"|
-                                       Label == "PAST"|Label == "PPOR"|Label == "PSTRI"|
-                                       Label == "SINT"|Label == "SSID"|Label == "PCLI"|
-                                       Label == "CNAT"|Label == "ACER"|Label == "AAGA"|
-                                       Label == "ATEN"|Label == "DLAB"|Label == "MCOM"|
-                                       Label == "SRAD"|Label == "MLAM"|Label == "AGAR"|
-                                       Label == "HCUC"|Label == "OFRA"|Label == "MDEC"|
-                                       Label == "EFAS"|Label == "DSTO"] <- "Stony Coral")
-cover <- within(cover, Label_General[Label == "ANTI"|Label == "GORGO"|Label == "GVEN"|
-                                       Label == "MURO"|Label == "PTER"|Label == "EUNI"|
-                                       Label == "BRIA"|Label == "PSEUGORG"|Label == "MURI"]<- "Octocoral")
-cover <- within(cover, Label_General[Label == "Hal_spp"|Label == "Macro"|Label == "Turbin"|
-                                       Label == "Lob_spp"|Label == "Dicsp"|Label == "BRAN-CALC"] <- "Macroalgae")
-cover <- within(cover, Label_General[Label == "Sand"|Label == "LSUB_RUB"] <- "Unconsolidated (Sand/Rubble)")
-cover <- within(cover, Label_General[Label == "Tk Tf"|Label == "Tn Tf"] <- "Turf Algae")
-cover <- within(cover, Label_General[Label == "Sand"|Label == "LSUB_RUB"] <- "Unconsolidated (Sand/Rubble)")
-cover <- within(cover, Label_General[Label == "SpgOth"|Label == "SPONGR"|Label == "SPTU"|
-                                       Label == "ENSP"|Label == "CLIONI"|Label == "SPONGB"|
-                                       Label == "SPONGV"] <- "Sponge")
-cover <- within(cover, Label_General[Label == "PALY"|Label == "Other Inv"|Label == "A"] <- "Other Encrusting Invert")
-
-cover <- within(cover, Label_General[Label == "CCA 1"|Label == "LIME"] <- "Hard Substrate")
-cover <- within(cover, Label_General[Label == "TAPE"|Label == "Unk"|Label == "SHAD"] <- "Unidentified")
-
-cover <- within(cover, Label_General[Label == "CYAN"|Label == "Cyan red"] <- "Cyanobacteria")
-
-cover$SiteName <- recode(cover$SiteName, "CBC Lagoo" = "CBC Lagoon")
-
-write.csv(cover, "coral_cover_pwr.csv") 
 ###############################
 #power analysis: number of images per location & transect
 ###############################
@@ -85,13 +31,13 @@ covtype <- cover2 %>% subset(Label_General == "Stony Coral")
 
 
 ###how much replication per location (e.g. Belize, Little Cayman, to detect differences in cover by location)
-  
-  #reduce sample to first available year from each project to get rid of repeated sites
+
+#reduce sample to first available year from each project to get rid of repeated sites
 covtype1 <- covtype %>% subset(Location == "Belize" & Year == "2019"|Location == "Cayman" & Year == "2022"|
-  Location == "Belize" & Year == "2022" & SiteName == "Tobacco Reef") %>%
+                                 Location == "Belize" & Year == "2022" & SiteName == "Tobacco Reef") %>%
   subset(!(Location == "Cayman" & SiteName == "CCMI Lagoon")) #this site is a low-cover outlier
- 
- #create balanced groups by location
+
+#create balanced groups by location
 covtype2 <- covtype1 %>%                              
   group_by(Location, SiteName, Year) %>%
   mutate(img_number = row_number())
@@ -100,13 +46,14 @@ max <- covtype2 %>% group_by(Location, SiteName, Year) %>% summarize(max = max(i
 #each group has at least 20 photos 
 
 covtype3 <- covtype2 %>% subset(img_number < 21)
-  
+
 t.test(cover ~ Location, data = covtype3)
 
-  #calculate effect size (Cohen's D)
+#calculate effect size (Cohen's D)
 library(effsize)
 library(effectsize)
 library(pwr)
+library(broom)
 
 group1 <- covtype3 %>% subset(Location == "Belize")
 group1$cover <- as.numeric(group1$cover)
@@ -115,19 +62,42 @@ group2$cover <- as.numeric(group2$cover)
 
 cohen.d(group1$cover, group2$cover)
 
-  #what is our power with current sample size of images per group?
-pwr.t.test(n=120,d=0.23,sig.level=.05,alternative="greater") #power = 0.55
+#what is our power with current sample size of images per group?
+pwr.t.test(n=120,d=0,sig.level=.05,alternative="greater") #power = 0.55
 
-  #what sample size do we need if we want a power of .80
-pwr.t.test(power = 0.8,d=0.23,sig.level=.05,alternative="greater") #n = 124000!!! (for stony coral)
-                                                                  #n =  234 for octocoral
+#what sample size do we need if we want a power of .80
+pwr.t.test(power = 0.8,d=0.01,sig.level=.05,alternative="greater") #n = 124000!!! (for stony coral)
+#n =  234 for octocoral
+
+df <- data.frame()
+
+for(var in 10:10000) {
+  ptt <- pwr.t.test(n=var,d=0.01,sig.level=.05,alternative="greater")
+  ptt_df <- as.data.frame(tidy(ptt))
+  df <- df %>%
+    bind_rows(ptt_df)
+}
+
+location_pwr <- ggplot(df, aes(x = n, y = power)) +
+  geom_line(color = "black") +
+  scale_y_continuous("Power") +
+  scale_x_continuous("Number of Images per Location") +
+  ggtitle("T-test: comparison of locations") +
+  theme(plot.title = element_text(size = 13,hjust = 0, face = "bold"),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        axis.text = element_text(colour = "black"),  
+        axis.title = element_text(colour = "black", size = 10),        
+        legend.position = "none")
+location_pwr
+
 
 ###percent stony coral cover, difference by year in Cayman (t-test) for sites with repeated surveys
 cay <- covtype %>% subset(Location == "Cayman") %>% subset(Label_General == "Stony Coral") %>%
   subset(SiteName != "Meadows" & SiteName != "Pizza Hut" & SiteName != "Henrys Beach" &
-         SiteName != "Tibbetts Top" & SiteName != "Splash House")
+           SiteName != "Tibbetts Top" & SiteName != "Spl ash House")
 
-  #balance replication between years
+#balance replication between years
 cay1 <- cay %>%                              
   group_by(SiteName, Year) %>%
   mutate(img_number = row_number())
@@ -143,38 +113,80 @@ group2$cover <- as.numeric(group2$cover)
 
 cohen.d(group1$cover, group2$cover)
 
-  #what is our power with current sample size of images per group?
-pwr.t.test(n=147,d=0.38,sig.level=.05,alternative="greater") #power = 0.95
+#what is our power with current sample size of images per group?
+pwr.t.test(n=147,d=0.37,sig.level=.05,alternative="greater") #power = 0.95
 pwr.t.test(power = 0.8 ,d=0.38,sig.level=.05,alternative="greater") #power = 0.95
 
+df <- data.frame()
 
-  #Aiming for ~100 photos/year may be good enough for detecting change in stony coral cover over time
-    #but 2023's images were scored by coralnet robot which may have underestimated cover
+for(var in 10:500) {
+  ptt <- pwr.t.test(n=var,d=0.37,sig.level=.05,alternative="greater")
+  ptt_df <- as.data.frame(tidy(ptt))
+  df <- df %>%
+    bind_rows(ptt_df)
+}
+
+year_pwr <- ggplot(df, aes(x = n, y = power)) +
+  geom_line(color = "black") +
+  scale_y_continuous("Power") +
+  scale_x_continuous("Number of Images per Year") +
+  ggtitle("T-test: consecutive years w/in location") +
+  theme(plot.title = element_text(size = 13,hjust = 0, face = "bold"),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        axis.text = element_text(colour = "black"),  
+        axis.title = element_text(colour = "black", size = 10),        
+        legend.position = "none")
+year_pwr
+
+#Aiming for ~100 photos/year may be good enough for detecting change in stony coral cover over time
+#but 2023's images were scored by coralnet robot which may have underestimated cover
 
 t.test(cover ~ Year, data = cay)
 
 
 ###How many photos per site/transect to detect variability among sites/transects?
-  
-  #create balanced groups
+
+#create balanced groups
 
 cay2 <- cay %>%                              
   group_by(SiteName, Year) %>%
   mutate(img_number = row_number())
 
 max <- cay2 %>% group_by(SiteName, Year) %>% summarize(max = max(img_number))
-  #each group has at least 21 photos
+#each group has at least 21 photos
 
 cay2 <- cay2 %>% subset(img_number < 22)
 
-  #calculate effect size
+#calculate effect size
 mod1 <- aov(cover ~ SiteName, data = cay2)
 summary(mod1)
 eta_squared(mod1, partial = FALSE) #effect size is 0.09
 
-pwr.anova.test(f=0.09,k=7,n=21,sig.level=0.05) #power is only 0.1!
+pwr.anova.test(f=0.08,k=7,n=21,sig.level=0.05) #power is only 0.1!
 
-pwr.anova.test(f=0.09,k=7,power=0.8,sig.level=0.05) #opimally would have 241 photos/transect to get differences among sites
+pwr.anova.test(f=0.08,k=7,power=0.8,sig.level=0.05) #opimally would have 241 photos/transect to get differences among sites
 
+df <- data.frame()
+
+for(var in 4:500) {
+  pat <- pwr.anova.test(f=0.08,k=7,n=var,sig.level=0.05)
+  pat_df <- as.data.frame(tidy(pat))
+  df <- df %>%
+    bind_rows(pat_df)
+}
+
+transect_pwr <- ggplot(df, aes(x = n, y = power)) +
+  geom_line(color = "black") +
+  scale_y_continuous("Power") +
+  scale_x_continuous("Number of Images per Transect") +
+  ggtitle("Anova: transects within a location") +
+  theme(plot.title = element_text(size = 13,hjust = 0, face = "bold"),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+        axis.text = element_text(colour = "black"),  
+        axis.title = element_text(colour = "black", size = 10),        
+        legend.position = "none")
+transect_pwr
 
 
