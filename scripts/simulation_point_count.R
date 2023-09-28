@@ -114,11 +114,12 @@ results <- setNames(
         
         # Generate number of cover values equal to simulation rounds
         # Rounded to 2 to create integer number of points per grid
-        # Having to use abs() needs to be resolved
-        simulated_cover_values <- abs(
-          round(rnorm(num_simulations, mean, sd), 2)
-        )
+        simulated_cover_values <- round(rnorm(num_simulations, mean, sd), 2)
         
+        # Determine which indices are < 0 and set those to 0
+        negative_indices <- which(simulated_cover_values < 0)
+        simulated_cover_values[negative_indices] <- 0
+      
         setNames(
           lapply(simulated_cover_values, function(simulation_number){
             
@@ -156,10 +157,20 @@ results <- setNames(
   paste0("mean", sim_mean)
 )
 
+# Overwriting saved simulation results will invalidate output evaluation tied to certain simulated means
+# saveRDS(results, file = "./data/simulation_results_list.RDS")
+
 # 4. Evaluate outputs ####
 
+results <- readRDS("data/simulation_results_list.RDS")
+
+# results mean 5 sd 1
+
 # The sublist target will need to be updated if simulation is rerun and/or simulation parameters are changed
-sub_list <- results$mean20$sd4$sim19.66
+simulation <- "sim5.58"
+actual_mean <- as.numeric(gsub("sim", "", simulation))
+
+sub_list <- results$mean5$sd1[[simulation]]
 
 example_df <- bind_rows(
   lapply(1:40, function(x){
@@ -186,15 +197,478 @@ example_df %>%
   ggplot(aes(number_points_sampled, percent_cover)) + 
   geom_point() + 
   geom_line() +
-  geom_hline(yintercept = 19.66) +
+  geom_hline(yintercept = actual_mean) +
+  ylim(0,50)
+
+# results mean 5 sd 2
+# The sublist target will need to be updated if simulation is rerun and/or simulation parameters are changed
+simulation <- "sim6.67"
+actual_mean <- as.numeric(gsub("sim", "", simulation))
+
+sub_list <- results$mean5$sd2[[simulation]]
+
+example_df <- bind_rows(
+  lapply(1:40, function(x){
+    
+    bind_rows(
+      
+      lapply(1:21, function(y){
+        
+        tibble(number_points_sampled = x,
+               replicate = y,
+               cover = sub_list[[x]][[y]])
+        
+      })
+      
+    )
+    
+  })
+) %>%
+  mutate(cover = cover * 100)
+
+example_df %>%
+  group_by(number_points_sampled) %>%
+  summarize(percent_cover = mean(cover)) %>%
+  ggplot(aes(number_points_sampled, percent_cover)) + 
+  geom_point() + 
+  geom_line() +
+  geom_hline(yintercept = actual_mean) +
+  ylim(0,50)
+
+# results mean 5 sd 3
+# The sublist target will need to be updated if simulation is rerun and/or simulation parameters are changed
+simulation <- "sim6.8"
+actual_mean <- as.numeric(gsub("sim", "", simulation))
+
+sub_list <- results$mean5$sd3[[simulation]]
+
+example_df <- bind_rows(
+  lapply(1:40, function(x){
+    
+    bind_rows(
+      
+      lapply(1:21, function(y){
+        
+        tibble(number_points_sampled = x,
+               replicate = y,
+               cover = sub_list[[x]][[y]])
+        
+      })
+      
+    )
+    
+  })
+) %>%
+  mutate(cover = cover * 100)
+
+example_df %>%
+  group_by(number_points_sampled) %>%
+  summarize(percent_cover = mean(cover)) %>%
+  ggplot(aes(number_points_sampled, percent_cover)) + 
+  geom_point() + 
+  geom_line() +
+  geom_hline(yintercept = actual_mean) +
+  ylim(0,50)
+
+# results mean 10 sd 2
+# The sublist target will need to be updated if simulation is rerun and/or simulation parameters are changed
+simulation <- "sim13.82"
+actual_mean <- as.numeric(gsub("sim", "", simulation))
+
+sub_list <- results$mean10$sd2[[simulation]]
+
+example_df <- bind_rows(
+  lapply(1:40, function(x){
+    
+    bind_rows(
+      
+      lapply(1:21, function(y){
+        
+        tibble(number_points_sampled = x,
+               replicate = y,
+               cover = sub_list[[x]][[y]])
+        
+      })
+      
+    )
+    
+  })
+) %>%
+  mutate(cover = cover * 100)
+
+example_df %>%
+  group_by(number_points_sampled) %>%
+  summarize(percent_cover = mean(cover)) %>%
+  ggplot(aes(number_points_sampled, percent_cover)) + 
+  geom_point() + 
+  geom_line() +
+  geom_hline(yintercept = actual_mean) +
+  ylim(0,50)
+
+# results mean 10 sd 4
+# The sublist target will need to be updated if simulation is rerun and/or simulation parameters are changed
+simulation <- "sim12.21"
+actual_mean <- as.numeric(gsub("sim", "", simulation))
+
+sub_list <- results$mean10$sd4[[simulation]]
+
+example_df <- bind_rows(
+  lapply(1:40, function(x){
+    
+    bind_rows(
+      
+      lapply(1:21, function(y){
+        
+        tibble(number_points_sampled = x,
+               replicate = y,
+               cover = sub_list[[x]][[y]])
+        
+      })
+      
+    )
+    
+  })
+) %>%
+  mutate(cover = cover * 100)
+
+example_df %>%
+  group_by(number_points_sampled) %>%
+  summarize(percent_cover = mean(cover)) %>%
+  ggplot(aes(number_points_sampled, percent_cover)) + 
+  geom_point() + 
+  geom_line() +
+  geom_hline(yintercept = actual_mean) +
+  ylim(0,50)
+
+# results mean 10 sd 6
+# The sublist target will need to be updated if simulation is rerun and/or simulation parameters are changed
+simulation <- "sim6.6"
+actual_mean <- as.numeric(gsub("sim", "", simulation))
+
+sub_list <- results$mean10$sd6[[simulation]]
+
+example_df <- bind_rows(
+  lapply(1:40, function(x){
+    
+    bind_rows(
+      
+      lapply(1:21, function(y){
+        
+        tibble(number_points_sampled = x,
+               replicate = y,
+               cover = sub_list[[x]][[y]])
+        
+      })
+      
+    )
+    
+  })
+) %>%
+  mutate(cover = cover * 100)
+
+example_df %>%
+  group_by(number_points_sampled) %>%
+  summarize(percent_cover = mean(cover)) %>%
+  ggplot(aes(number_points_sampled, percent_cover)) + 
+  geom_point() + 
+  geom_line() +
+  geom_hline(yintercept = actual_mean) +
+  ylim(0,50)
+
+# results mean 20 sd 4
+# The sublist target will need to be updated if simulation is rerun and/or simulation parameters are changed
+simulation <- "sim20.58"
+actual_mean <- as.numeric(gsub("sim", "", simulation))
+
+sub_list <- results$mean20$sd4[[simulation]]
+
+example_df <- bind_rows(
+  lapply(1:40, function(x){
+    
+    bind_rows(
+      
+      lapply(1:21, function(y){
+        
+        tibble(number_points_sampled = x,
+               replicate = y,
+               cover = sub_list[[x]][[y]])
+        
+      })
+      
+    )
+    
+  })
+) %>%
+  mutate(cover = cover * 100)
+
+example_df %>%
+  group_by(number_points_sampled) %>%
+  summarize(percent_cover = mean(cover)) %>%
+  ggplot(aes(number_points_sampled, percent_cover)) + 
+  geom_point() + 
+  geom_line() +
+  geom_hline(yintercept = actual_mean) +
+  ylim(0,50)
+
+# results mean 20 sd 8
+# The sublist target will need to be updated if simulation is rerun and/or simulation parameters are changed
+simulation <- "sim21.28"
+actual_mean <- as.numeric(gsub("sim", "", simulation))
+
+sub_list <- results$mean20$sd8[[simulation]]
+
+example_df <- bind_rows(
+  lapply(1:40, function(x){
+    
+    bind_rows(
+      
+      lapply(1:21, function(y){
+        
+        tibble(number_points_sampled = x,
+               replicate = y,
+               cover = sub_list[[x]][[y]])
+        
+      })
+      
+    )
+    
+  })
+) %>%
+  mutate(cover = cover * 100)
+
+example_df %>%
+  group_by(number_points_sampled) %>%
+  summarize(percent_cover = mean(cover)) %>%
+  ggplot(aes(number_points_sampled, percent_cover)) + 
+  geom_point() + 
+  geom_line() +
+  geom_hline(yintercept = actual_mean) +
+  ylim(0,50)
+
+# results mean 20 sd 12
+# The sublist target will need to be updated if simulation is rerun and/or simulation parameters are changed
+simulation <- "sim18.06"
+actual_mean <- as.numeric(gsub("sim", "", simulation))
+
+sub_list <- results$mean20$sd12[[simulation]]
+
+example_df <- bind_rows(
+  lapply(1:40, function(x){
+    
+    bind_rows(
+      
+      lapply(1:21, function(y){
+        
+        tibble(number_points_sampled = x,
+               replicate = y,
+               cover = sub_list[[x]][[y]])
+        
+      })
+      
+    )
+    
+  })
+) %>%
+  mutate(cover = cover * 100)
+
+example_df %>%
+  group_by(number_points_sampled) %>%
+  summarize(percent_cover = mean(cover)) %>%
+  ggplot(aes(number_points_sampled, percent_cover)) + 
+  geom_point() + 
+  geom_line() +
+  geom_hline(yintercept = actual_mean) +
+  ylim(0,50)
+
+# results mean 30 sd 6
+# The sublist target will need to be updated if simulation is rerun and/or simulation parameters are changed
+simulation <- "sim39.19"
+actual_mean <- as.numeric(gsub("sim", "", simulation))
+
+sub_list <- results$mean30$sd6[[simulation]]
+
+example_df <- bind_rows(
+  lapply(1:40, function(x){
+    
+    bind_rows(
+      
+      lapply(1:21, function(y){
+        
+        tibble(number_points_sampled = x,
+               replicate = y,
+               cover = sub_list[[x]][[y]])
+        
+      })
+      
+    )
+    
+  })
+) %>%
+  mutate(cover = cover * 100)
+
+example_df %>%
+  group_by(number_points_sampled) %>%
+  summarize(percent_cover = mean(cover)) %>%
+  ggplot(aes(number_points_sampled, percent_cover)) + 
+  geom_point() + 
+  geom_line() +
+  geom_hline(yintercept = actual_mean) +
+  ylim(0,50)
+
+# results mean 30 sd 12
+# The sublist target will need to be updated if simulation is rerun and/or simulation parameters are changed
+simulation <- "sim29.41"
+actual_mean <- as.numeric(gsub("sim", "", simulation))
+
+sub_list <- results$mean30$sd12[[simulation]]
+
+example_df <- bind_rows(
+  lapply(1:40, function(x){
+    
+    bind_rows(
+      
+      lapply(1:21, function(y){
+        
+        tibble(number_points_sampled = x,
+               replicate = y,
+               cover = sub_list[[x]][[y]])
+        
+      })
+      
+    )
+    
+  })
+) %>%
+  mutate(cover = cover * 100)
+
+example_df %>%
+  group_by(number_points_sampled) %>%
+  summarize(percent_cover = mean(cover)) %>%
+  ggplot(aes(number_points_sampled, percent_cover)) + 
+  geom_point() + 
+  geom_line() +
+  geom_hline(yintercept = actual_mean) +
+  ylim(0,50)
+
+# results mean 30 sd 18
+# The sublist target will need to be updated if simulation is rerun and/or simulation parameters are changed
+simulation <- "sim40.22"
+actual_mean <- as.numeric(gsub("sim", "", simulation))
+
+sub_list <- results$mean30$sd18[[simulation]]
+
+example_df <- bind_rows(
+  lapply(1:40, function(x){
+    
+    bind_rows(
+      
+      lapply(1:21, function(y){
+        
+        tibble(number_points_sampled = x,
+               replicate = y,
+               cover = sub_list[[x]][[y]])
+        
+      })
+      
+    )
+    
+  })
+) %>%
+  mutate(cover = cover * 100)
+
+example_df %>%
+  group_by(number_points_sampled) %>%
+  summarize(percent_cover = mean(cover)) %>%
+  ggplot(aes(number_points_sampled, percent_cover)) + 
+  geom_point() + 
+  geom_line() +
+  geom_hline(yintercept = actual_mean) +
   ylim(0,50)
 
 
-wilcoxen_test_df <- example_df %>%
-  group_by(number_points_sampled) %>%
-  summarize(percent_cover = mean(cover)) %>%
-  mutate(parameter_mean = 19.66)
+# how many points do we need to sample to get a precise cover estimate, 
+# given the realistic heterogeneity of the transects
+# This code can take a long time to run, see output CSV below
+# results_2 <- bind_rows(
+#   
+#   lapply(names(results), function(mean_list_name){
+#     
+#     print(mean_list_name)
+#     
+#     bind_rows(
+#       
+#       lapply(names(results[[mean_list_name]]), function(sd_list_name){
+#         
+#         print(sd_list_name)
+#         
+#         bind_rows(
+#           
+#           lapply(names(results[[mean_list_name]][[sd_list_name]]), function(sim_list_name){
+#             
+#             print(sim_list_name)
+#             
+#             bind_rows( 
+#               
+#               lapply(1:40, function(x){
+#                 
+#                 bind_rows(
+#                   
+#                   lapply(1:21, function(y){
+#                     
+#                     tibble(number_points_sampled = x,
+#                            replicate = y,
+#                            cover = unlist(results[[mean_list_name]][[sd_list_name]][[sim_list_name]][[x]][[y]])
+#                     )
+#                     
+#                   })
+#                   
+#                 )
+#                 
+#               })
+#             ) %>%
+#               mutate(cover = cover * 100) %>%
+#               group_by(number_points_sampled) %>%
+#               summarize(percent_cover = mean(cover)) %>%
+#               mutate(actual_cover = gsub("sim", "", sim_list_name))
+#           })
+#           
+#           
+#         ) %>%
+#           mutate(actual_cover = as.numeric(actual_cover),
+#                  difference = abs(actual_cover - percent_cover)) %>%
+#           group_by(number_points_sampled) %>%
+#           summarize(mean_diff = mean(difference)) %>%
+#           mutate(sd_category = sd_list_name)
+#         
+#         
+#       })
+#     ) %>%
+#       mutate(mean_category = mean_list_name)
+#     
+#   })
+# )
 
-hist(wilcoxen_test_df$percent_cover)
+#write_csv(results_2, "./data/simulation_mean_difference_results.csv")
 
-wilcox.test(wilcoxen_test_df$parameter_mean, wilcoxen_test_df$percent_cover, exact = F)
+results_2 <- read_csv("data/simulation_mean_difference_results.csv")
+
+results_2 %>%
+  filter(sd_category == "sd1",
+         mean_category == "mean5") %>%
+  ggplot(aes(number_points_sampled, mean_diff)) + geom_point() + geom_line()
+
+results_2 %>%
+  filter(sd_category == "sd2",
+         mean_category == "mean10") %>%
+  ggplot(aes(number_points_sampled, mean_diff)) + geom_point() + geom_line()
+
+results_2 %>%
+  filter(sd_category == "sd4",
+         mean_category == "mean20") %>%
+  ggplot(aes(number_points_sampled, mean_diff)) + geom_point() + geom_line()
+
+results_2 %>%
+  filter(sd_category == "sd6",
+         mean_category == "mean30") %>%
+  ggplot(aes(number_points_sampled, mean_diff)) + geom_point() + geom_line()
+
