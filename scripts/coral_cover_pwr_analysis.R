@@ -490,31 +490,40 @@ dev.off()
 #######################
 cover5 <- cover4 %>% mutate()
 
+num_simulations <- 100
+
+# Silence dplyr warnings
+options(dplyr.summarise.inform = FALSE)
 
 df <- data.frame()
 
-for(var in 5:40) {
-  
-  sample <- cover4 %>% mutate(Count = 1) %>%
-    group_by(SiteName, Name) %>% 
-    slice_sample(n = var, replace = FALSE) %>%
-    group_by(SiteName, Name, Label_General) %>%
-    summarize(cover = (sum(Count))/var*100) %>%
-    ungroup() %>%
-    complete(Label_General, nesting(SiteName, Name), 
-             fill = list(cover = 0)) %>%
-    group_by(Label_General) %>%
-    summarize(n = var, mean = mean(cover), se = se(cover)) %>%
-    subset(Label_General == "Stony Coral" | Label_General == "Octocoral"|
-             Label_General == "Macroalgae")
-  
-  df <- df %>%
-    bind_rows(sample)
+for(sim in 1:num_simulations){
+  for(var in 5:40) {
+    
+    sample <- cover4 %>% mutate(Count = 1) %>%
+      group_by(SiteName, Name) %>% 
+      slice_sample(n = var, replace = FALSE) %>%
+      group_by(SiteName, Name, Label_General) %>%
+      summarize(cover = (sum(Count))/var*100) %>%
+      ungroup() %>%
+      complete(Label_General, nesting(SiteName, Name), 
+               fill = list(cover = 0)) %>%
+      group_by(Label_General) %>%
+      summarize(n = var, mean = mean(cover), se = sd(cover)/sqrt(var)) %>% #se(cover)) %>%
+      subset(Label_General == "Stony Coral" | Label_General == "Octocoral"|
+               Label_General == "Macroalgae") %>%
+      mutate(simulation = sim)
+    
+    df <- df %>%
+      bind_rows(sample)
+  }
 }
 
+df_output <- df %>%
+  group_by(Label_General, n) %>%
+  summarize(mean = mean(mean), se = mean(se))
 
-
-MeanCovPlot <- ggplot(df, aes(x = n, y = mean)) +
+MeanCovPlot <- ggplot(df_output, aes(x = n, y = mean)) +
   geom_line(aes(color = Label_General), size = 1) +
   geom_point(aes(fill = Label_General), pch = 21, size = 2.5, position = position_dodge(width = 0.9)) +
   geom_errorbar(aes(ymax = mean + se, ymin = mean - se, color = Label_General), width = 0.2, alpha = 0.4,
