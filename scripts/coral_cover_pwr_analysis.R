@@ -13,6 +13,7 @@ setwd("C:/Users/harperl/OneDrive - Smithsonian Institution/Documents/Coral Disea
 
 # Import the survey data
 cover <- read.csv("coral_cover_pwr.csv")
+# cover <- read.csv("data/raw_coral_cover_pwr.csv")
 
 DateSplit <- cover$Date
 split <- strsplit(DateSplit, "/")
@@ -314,127 +315,157 @@ PointAccum
 dev.off()
 
 #What do the accumulation curves look like for each photo added if we do 10, 20, 30, 40 points per photo?
+num_simulations <- 100
 
-pt10 <- cover4 %>%
-  group_by(Name) %>%
-  slice_sample(n = 10, replace = FALSE) %>%
-  mutate(Count = 1)
+pt10_list <- lapply(1:num_simulations, function(i){
+  
+  pt10 <- cover4 %>%
+    group_by(Name) %>%
+    slice_sample(n = 10, replace = FALSE) %>%
+    mutate(Count = 1)
+  
+  pt10 <- within(pt10, Label[Label_General != "Stony Coral"] <- "Other")
+  
+  cast10 <- pt10 %>% group_by(Location, Year, SiteName, Name, Label) %>%
+    summarize(Count = sum(Count)) %>%
+    pivot_wider(names_from = Label, values_from = Count) %>%
+    replace(is.na(.), 0)
+  
+  mat10 = cast10[,5:ncol(cast10)]
+  mat10 <- as.matrix(mat10)
+  
+  specaccum(mat10, method="random", permutations=500)$richness
+  
+})
 
-pt10 <- within(pt10, Label[Label_General != "Stony Coral"] <- "Other")
-
-cast10 <- pt10 %>% group_by(Location, Year, SiteName, Name, Label) %>%
-  summarize(Count = sum(Count)) %>%
-  pivot_wider(names_from = Label, values_from = Count) %>%
-  replace(is.na(.), 0)
-
-mat10 = cast10[,5:ncol(cast10)]
-mat10 <- as.matrix(mat10)
-
-accurvepics10 <-specaccum(mat10, method="random", permutations=500)
-
+accurvepics10_richness <- Reduce("+",pt10_list)/length(pt10_list)
 
 #20 points
-pt20 <- cover4 %>%
-  group_by(Name) %>%
-  slice_sample(n = 20, replace = FALSE) %>%
-  mutate(Count = 1)
 
-pt20 <- within(pt20, Label[Label_General != "Stony Coral"] <- "Other")
+pt20_list <- lapply(1:num_simulations, function(i){
+  
+  pt20 <- cover4 %>%
+    group_by(Name) %>%
+    slice_sample(n = 20, replace = FALSE) %>%
+    mutate(Count = 1)
+  
+  pt20 <- within(pt20, Label[Label_General != "Stony Coral"] <- "Other")
+  
+  cast20 <- pt20 %>% group_by(Location, Year, SiteName, Name, Label) %>%
+    summarize(Count = sum(Count)) %>%
+    pivot_wider(names_from = Label, values_from = Count) %>%
+    replace(is.na(.), 0)
+  
+  mat20 = cast20[,5:ncol(cast20)]
+  mat20 <- as.matrix(mat20)
+  
+  specaccum(mat20, method="random", permutations=500)$richness
+  
+})
 
-cast20 <- pt20 %>% group_by(Location, Year, SiteName, Name, Label) %>%
-  summarize(Count = sum(Count)) %>%
-  pivot_wider(names_from = Label, values_from = Count) %>%
-  replace(is.na(.), 0)
-
-mat20 = cast20[,5:ncol(cast20)]
-mat20 <- as.matrix(mat20)
-
-accurvepics20 <-specaccum(mat20, method="random", permutations=500)
+accurvepics20_richness <- Reduce("+",pt20_list)/length(pt20_list)
 
 #25 points
-pt25 <- cover4 %>%
-  group_by(Name) %>%
-  slice_sample(n = 25, replace = FALSE) %>%
-  mutate(Count = 1)
+pt25_list <- lapply(1:num_simulations, function(i){
+  
+  pt25 <- cover4 %>%
+    group_by(Name) %>%
+    slice_sample(n = 25, replace = FALSE) %>%
+    mutate(Count = 1)
+  
+  pt25 <- within(pt25, Label[Label_General != "Stony Coral"] <- "Other")
+  
+  cast25 <- pt25 %>% group_by(Location, Year, SiteName, Name, Label) %>%
+    summarize(Count = sum(Count)) %>%
+    pivot_wider(names_from = Label, values_from = Count) %>%
+    replace(is.na(.), 0)
+  
+  mat25 = cast25[,5:ncol(cast25)]
+  mat25 <- as.matrix(mat25)
+  
+  specaccum(mat25, method="random", permutations=500)$richness
+})
 
-pt25 <- within(pt25, Label[Label_General != "Stony Coral"] <- "Other")
-
-cast25 <- pt25 %>% group_by(Location, Year, SiteName, Name, Label) %>%
-  summarize(Count = sum(Count)) %>%
-  pivot_wider(names_from = Label, values_from = Count) %>%
-  replace(is.na(.), 0)
-
-mat25 = cast25[,5:ncol(cast25)]
-mat25 <- as.matrix(mat25)
-
-accurvepics25 <-specaccum(mat25, method="random", permutations=500)
-
+accurvepics25_richness <- Reduce("+",pt25_list)/length(pt25_list)
 #30 Points
 
-pt30 <- cover4 %>%
-  group_by(Name) %>%
-  slice_sample(n = 30, replace = FALSE) %>%
-  mutate(Count = 1)
+pt30_list <- lapply(1:num_simulations, function(i){
+  
+  pt30 <- cover4 %>%
+    group_by(Name) %>%
+    slice_sample(n = 30, replace = FALSE) %>%
+    mutate(Count = 1)
+  
+  pt30 <- within(pt30, Label[Label_General != "Stony Coral"] <- "Other")
+  
+  cast30 <- pt30 %>% group_by(Location, Year, SiteName, Name, Label) %>%
+    summarize(Count = sum(Count)) %>%
+    pivot_wider(names_from = Label, values_from = Count) %>%
+    replace(is.na(.), 0)
+  
+  mat30 = cast30[,5:ncol(cast30)]
+  mat30 <- as.matrix(mat30)
+  
+  specaccum(mat30, method="random", permutations=500)$richness
+  
+})
 
-pt30 <- within(pt30, Label[Label_General != "Stony Coral"] <- "Other")
-
-cast30 <- pt30 %>% group_by(Location, Year, SiteName, Name, Label) %>%
-  summarize(Count = sum(Count)) %>%
-  pivot_wider(names_from = Label, values_from = Count) %>%
-  replace(is.na(.), 0)
-
-mat30 = cast30[,5:ncol(cast30)]
-mat30 <- as.matrix(mat30)
-
-accurvepics30 <-specaccum(mat30, method="random", permutations=500)
+accurvepics30_richness <- Reduce("+",pt30_list)/length(pt30_list)
 
 #35 Points
+pt35_list <- lapply(1:num_simulations, function(i){
+  
+  pt35 <- cover4 %>%
+    group_by(Name) %>%
+    slice_sample(n = 35, replace = FALSE) %>%
+    mutate(Count = 1)
+  
+  pt35 <- within(pt35, Label[Label_General != "Stony Coral"] <- "Other")
+  
+  cast35 <- pt35 %>% group_by(Location, Year, SiteName, Name, Label) %>%
+    summarize(Count = sum(Count)) %>%
+    pivot_wider(names_from = Label, values_from = Count) %>%
+    replace(is.na(.), 0)
+  
+  mat35 = cast35[,5:ncol(cast35)]
+  mat35 <- as.matrix(mat35)
+  
+  specaccum(mat35, method="random", permutations=500)$richness
+})
 
-pt35 <- cover4 %>%
-  group_by(Name) %>%
-  slice_sample(n = 35, replace = FALSE) %>%
-  mutate(Count = 1)
-
-pt35 <- within(pt35, Label[Label_General != "Stony Coral"] <- "Other")
-
-cast35 <- pt35 %>% group_by(Location, Year, SiteName, Name, Label) %>%
-  summarize(Count = sum(Count)) %>%
-  pivot_wider(names_from = Label, values_from = Count) %>%
-  replace(is.na(.), 0)
-
-mat35 = cast35[,5:ncol(cast35)]
-mat35 <- as.matrix(mat35)
-
-accurvepics35 <-specaccum(mat35, method="random", permutations=500)
+accurvepics35_richness <- Reduce("+",pt35_list)/length(pt35_list)
 
 #40 Points
+pt40_list <- lapply(1:num_simulations, function(i){
+  
+  pt40 <- cover4 %>%
+    group_by(Name) %>%
+    slice_sample(n = 40, replace = FALSE) %>%
+    mutate(Count = 1)
+  
+  pt40 <- within(pt40, Label[Label_General != "Stony Coral"] <- "Other")
+  
+  cast40 <- pt40 %>% group_by(Location, Year, SiteName, Name, Label) %>%
+    summarize(Count = sum(Count)) %>%
+    pivot_wider(names_from = Label, values_from = Count) %>%
+    replace(is.na(.), 0)
+  
+  mat40 = cast40[,5:ncol(cast40)]
+  mat40 <- as.matrix(mat40)
+  
+  specaccum(mat40, method="random", permutations=500)$richness
+  
+})
 
-pt40 <- cover4 %>%
-  group_by(Name) %>%
-  slice_sample(n = 40, replace = FALSE) %>%
-  mutate(Count = 1)
-
-pt40 <- within(pt40, Label[Label_General != "Stony Coral"] <- "Other")
-
-cast40 <- pt40 %>% group_by(Location, Year, SiteName, Name, Label) %>%
-  summarize(Count = sum(Count)) %>%
-  pivot_wider(names_from = Label, values_from = Count) %>%
-  replace(is.na(.), 0)
-
-mat40 = cast40[,5:ncol(cast40)]
-mat40 <- as.matrix(mat40)
-
-accurvepics40 <-specaccum(mat40, method="random", permutations=500)
-
-
+accurvepics40_richness <- Reduce("+",pt40_list)/length(pt40_list)
 
 AccumPlot <- ggplot() +
-  geom_line(aes(x = accurvepics10$sites, y = accurvepics10$richness, color = "10"), size = 1) +
-  geom_line(aes(x = accurvepics20$sites, y = accurvepics20$richness, color = "20"), size = 1) +
-  geom_line(aes(x = accurvepics25$sites, y = accurvepics25$richness, color = "25"), size = 1) +
-  geom_line(aes(x = accurvepics30$sites, y = accurvepics30$richness, color = "30"), size = 1) + 
-  geom_line(aes(x = accurvepics35$sites, y = accurvepics35$richness, color = "35"), size = 1) + 
-  geom_line(aes(x = accurvepics40$sites, y = accurvepics40$richness, color = "40"), size = 1) +
+  geom_line(aes(x = 1:503, y = accurvepics10_richness, color = "10"), size = 1) +
+  geom_line(aes(x = 1:503, y = accurvepics20_richness, color = "20"), size = 1) +
+  geom_line(aes(x = 1:503, y = accurvepics25_richness, color = "25"), size = 1) +
+  geom_line(aes(x = 1:503, y = accurvepics30_richness, color = "30"), size = 1) + 
+  geom_line(aes(x = 1:503, y = accurvepics35_richness, color = "35"), size = 1) + 
+  geom_line(aes(x = 1:503, y = accurvepics40_richness, color = "40"), size = 1) +
   scale_x_continuous(breaks = seq(0,1000, by = 100)) +
   #scale_y_continuous(limits = c(0,100)) +
   labs(x = "Number of Photos",
@@ -452,6 +483,7 @@ AccumPlot <- ggplot() +
 tiff("AccumPicsByPointNum.tif",width = 7, height = 5, units = "in", res = 300)
 AccumPlot
 dev.off()
+
 
 #######################
 #Simulate cover measurement for different numbers of photos and points
